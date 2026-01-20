@@ -118,34 +118,37 @@
                 <br>
                 <h5 style="padding: 25px;"><i>Total Users in Database: {{totalreg}}</i></h5>
             </form>
+            <video id="video" width="640" height="480" autoplay></video>
+            <button id="capture">Mark Attendance</button>
+            <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
         </div>
 
     </div>
 
     <script>
-      const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
 
-    // Request access to the webcam
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => { video.srcObject = stream; })
-        .catch(err => console.error("Error accessing webcam: ", err));
+        // Request access to the webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => console.error("Error accessing webcam: ", err));
 
-    document.getElementById('capture').addEventListener('click', () => {
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, 640, 480);
-        
-        // Convert the image to a Base64 string to send to Flask
-        const imageData = canvas.toDataURL('image/jpeg');
-        
-        fetch('/process_frame', {
-            method: 'POST',
-            body: JSON.stringify({ image: imageData }),
-            headers: { 'Content-Type': 'application/json' }
-        })
-        .then(response => response.json())
-        .then(data => alert("Result: " + data.status));
-    });
+        document.getElementById('capture').addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 640, 480);
+
+            // Convert the image to a Base64 string to send to Flask
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            fetch('/process_frame', {
+                method: 'POST',
+                body: JSON.stringify({ image: imageData }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(data => alert("Result: " + data.status));
+        });
     </script>
 </body>
 
